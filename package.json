@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Ultra memory-efficient Node.js library for PDF analysis with intelligent document type detection (scan/vector/text). Extracts text, counts images and vectors with <100MB RAM usage even for large PDFs with hundreds of images.",
   "main": "index.js",
+  "types": "index.d.ts",
   "type": "module",
   "scripts": {
     "start": "node example.js"
