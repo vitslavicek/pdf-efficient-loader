@@ -1,6 +1,29 @@
 import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf.mjs';
 import fs from 'fs';
 
+// Setup canvas polyfill for Node.js environment
+// This is required for pdfjs-dist to work in Node.js (provides DOMMatrix, etc.)
+let canvasPolyfillSetup = false;
+
+async function setupCanvasPolyfill() {
+  if (canvasPolyfillSetup) return;
+  
+  try {
+    const { Canvas } = await import('canvas');
+    
+    // Polyfill global objects needed by pdfjs-dist
+    if (typeof globalThis.DOMMatrix === 'undefined') {
+      const canvasModule = await import('canvas');
+      globalThis.DOMMatrix = canvasModule.DOMMatrix;
+    }
+    
+    canvasPolyfillSetup = true;
+  } catch (error) {
+    console.warn('Canvas polyfill not available. Some PDF operations may fail in Node.js environment.');
+    console.warn('Install canvas with: npm install canvas');
+  }
+}
+
 /**
  * Helper function to load PDF data from path or buffer
  * @param {string|Buffer|Uint8Array} source - Path to PDF file or buffer
@@ -26,6 +49,9 @@ function loadPdfData(source) {
  * @returns {Promise<{text: string, imageCount: number, vectorCount: number}>}
  */
 export async function extractPdfData(pdfSource) {
+  // Setup canvas polyfill for Node.js
+  await setupCanvasPolyfill();
+  
   // Load PDF file as buffer
   const data = loadPdfData(pdfSource);
   
@@ -180,6 +206,9 @@ function countGraphicsObjects(ops) {
  * @returns {Promise<{text: string, imageCount: number, vectorCount: number}>}
  */
 export async function extractPdfDataStreaming(pdfSource, options = {}) {
+  // Setup canvas polyfill for Node.js
+  await setupCanvasPolyfill();
+  
   const { onPageProcessed = null, extractText = true } = options;
   const data = loadPdfData(pdfSource);
   
@@ -260,6 +289,9 @@ export async function extractPdfDataStreaming(pdfSource, options = {}) {
  * @returns {Promise<{text: string, imageCount: number, vectorCount: number, pages: number}>}
  */
 export async function extractPdfStats(pdfSource, options = {}) {
+  // Setup canvas polyfill for Node.js
+  await setupCanvasPolyfill();
+  
   const { extractText = true, onPageProcessed = null } = options;
   const data = loadPdfData(pdfSource);
   
@@ -354,6 +386,9 @@ export async function extractPdfStats(pdfSource, options = {}) {
  * @returns {Promise<{type: string, confidence: number, stats: Object}>}
  */
 export async function analyzePdfType(pdfSource, options = {}) {
+  // Setup canvas polyfill for Node.js
+  await setupCanvasPolyfill();
+  
   const { samplePages = 5 } = options;
   const data = loadPdfData(pdfSource);
   
@@ -508,6 +543,9 @@ export async function analyzePdfType(pdfSource, options = {}) {
  * @returns {Promise<{text: string, imageCount: number, vectorCount: number, pages: number, pdfType: string}>}
  */
 export async function extractPdfSmart(pdfSource, options = {}) {
+  // Setup canvas polyfill for Node.js
+  await setupCanvasPolyfill();
+  
   const { onProgress = null } = options;
   
   // First analyze PDF type (fast, low RAM)
