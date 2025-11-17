@@ -37,7 +37,7 @@ function loadPdfData(source) {
   try{
     return new Uint8Array(source.buffer, source.byteOffset, source.byteLength);
   }catch(e){
-    throw new Error('Invalid source: must be a file path (string), Buffer, or Uint8Array');
+    throw new Error(e);
   }
 }
 
