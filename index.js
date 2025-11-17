@@ -2,15 +2,32 @@ import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf.mjs';
 import fs from 'fs';
 
 /**
+ * Helper function to load PDF data from path or buffer
+ * @param {string|Buffer|Uint8Array} source - Path to PDF file or buffer
+ * @returns {Uint8Array}
+ */
+function loadPdfData(source) {
+  if (typeof source === 'string') {
+    return new Uint8Array(fs.readFileSync(source));
+  } else if (source instanceof Uint8Array) {
+    return source;
+  } else if (Buffer.isBuffer(source)) {
+    return new Uint8Array(source);
+  } else {
+    throw new Error('Invalid source: must be a file path (string), Buffer, or Uint8Array');
+  }
+}
+
+/**
  * Memory-efficient PDF data extraction
  * Processes document page-by-page without loading entire PDF into memory
  * 
- * @param {string} pdfPath - Path to PDF file
+ * @param {string|Buffer|Uint8Array} pdfSource - Path to PDF file, Buffer, or Uint8Array
  * @returns {Promise<{text: string, imageCount: number, vectorCount: number}>}
  */
-export async function extractPdfData(pdfPath) {
+export async function extractPdfData(pdfSource) {
   // Load PDF file as buffer
-  const data = new Uint8Array(fs.readFileSync(pdfPath));
+  const data = loadPdfData(pdfSource);
   
   // Load PDF document with maximum optimizations for low RAM usage
   const loadingTask = pdfjsLib.getDocument({
@@ -156,15 +173,15 @@ function countGraphicsObjects(ops) {
  * Alternative method for streaming processing of large PDFs
  * Uses callback for progressive page processing
  * 
- * @param {string} pdfPath - Path to PDF file
+ * @param {string|Buffer|Uint8Array} pdfSource - Path to PDF file, Buffer, or Uint8Array
  * @param {Object} options - Processing options
  * @param {Function} options.onPageProcessed - Callback called after processing each page
  * @param {boolean} options.extractText - Whether to extract text (true) or just statistics (false)
  * @returns {Promise<{text: string, imageCount: number, vectorCount: number}>}
  */
-export async function extractPdfDataStreaming(pdfPath, options = {}) {
+export async function extractPdfDataStreaming(pdfSource, options = {}) {
   const { onPageProcessed = null, extractText = true } = options;
-  const data = new Uint8Array(fs.readFileSync(pdfPath));
+  const data = loadPdfData(pdfSource);
   
   const loadingTask = pdfjsLib.getDocument({
     data,
@@ -236,15 +253,15 @@ export async function extractPdfDataStreaming(pdfPath, options = {}) {
  * Does not use getOperatorList which loads image data into memory
  * Uses direct access to PDF dictionary for counting objects
  * 
- * @param {string} pdfPath - Path to PDF file
+ * @param {string|Buffer|Uint8Array} pdfSource - Path to PDF file, Buffer, or Uint8Array
  * @param {Object} options - Processing options
  * @param {boolean} options.extractText - Whether to extract text
  * @param {Function} options.onPageProcessed - Callback for progress
  * @returns {Promise<{text: string, imageCount: number, vectorCount: number, pages: number}>}
  */
-export async function extractPdfStats(pdfPath, options = {}) {
+export async function extractPdfStats(pdfSource, options = {}) {
   const { extractText = true, onPageProcessed = null } = options;
-  const data = new Uint8Array(fs.readFileSync(pdfPath));
+  const data = loadPdfData(pdfSource);
   
   const loadingTask = pdfjsLib.getDocument({
     data,
@@ -331,14 +348,14 @@ export async function extractPdfStats(pdfPath, options = {}) {
  * Detects whether PDF is a scan, vector document, or pure text
  * Does not use getOperatorList - only analyzes PDF dictionary structure
  * 
- * @param {string} pdfPath - Path to PDF file
+ * @param {string|Buffer|Uint8Array} pdfSource - Path to PDF file, Buffer, or Uint8Array
  * @param {Object} options - Analysis options
  * @param {number} options.samplePages - Number of pages to analyze (default: 5)
  * @returns {Promise<{type: string, confidence: number, stats: Object}>}
  */
-export async function analyzePdfType(pdfPath, options = {}) {
+export async function analyzePdfType(pdfSource, options = {}) {
   const { samplePages = 5 } = options;
-  const data = new Uint8Array(fs.readFileSync(pdfPath));
+  const data = loadPdfData(pdfSource);
   
   const loadingTask = pdfjsLib.getDocument({
     data,
@@ -486,17 +503,17 @@ export async function analyzePdfType(pdfPath, options = {}) {
  * Efficient data extraction based on PDF type
  * Automatically selects the best method based on document type
  * 
- * @param {string} pdfPath - Path to PDF file
+ * @param {string|Buffer|Uint8Array} pdfSource - Path to PDF file, Buffer, or Uint8Array
  * @param {Object} options - Processing options
  * @returns {Promise<{text: string, imageCount: number, vectorCount: number, pages: number, pdfType: string}>}
  */
-export async function extractPdfSmart(pdfPath, options = {}) {
+export async function extractPdfSmart(pdfSource, options = {}) {
   const { onProgress = null } = options;
   
   // First analyze PDF type (fast, low RAM)
   if (onProgress) onProgress({ stage: 'analyzing', progress: 0 });
   
-  const analysis = await analyzePdfType(pdfPath, { samplePages: 5 });
+  const analysis = await analyzePdfType(pdfSource, { samplePages: 5 });
   
   if (onProgress) {
     onProgress({ 
@@ -509,7 +526,7 @@ export async function extractPdfSmart(pdfPath, options = {}) {
   
   // FOR ALL types: use ultra-efficient method WITHOUT getOperatorList
   // This guarantees minimal RAM usage (< 100 MB) for any PDF
-  const data = new Uint8Array(fs.readFileSync(pdfPath));
+  const data = loadPdfData(pdfSource);
   
   const loadingTask = pdfjsLib.getDocument({
     data,

@@ -26,6 +26,7 @@ Automatically detects PDF type and uses the most efficient extraction method:
 ```javascript
 import { extractPdfSmart } from './index.js';
 
+// From file path
 const result = await extractPdfSmart('./document.pdf', {
   onProgress: (progress) => {
     if (progress.stage === 'extracting') {
@@ -33,6 +34,15 @@ const result = await extractPdfSmart('./document.pdf', {
     }
   }
 });
+
+// From buffer (e.g., uploaded file, HTTP response)
+import fs from 'fs';
+const buffer = fs.readFileSync('./document.pdf');
+const result = await extractPdfSmart(buffer, { onProgress: ... });
+
+// From Uint8Array
+const uint8Array = new Uint8Array(buffer);
+const result = await extractPdfSmart(uint8Array, { onProgress: ... });
 
 console.log('Type:', result.pdfType);        // 'scan', 'vector', or 'text'
 console.log('Text:', result.text);
@@ -67,12 +77,12 @@ console.log('Vectors:', result.vectorCount);
 
 ## 📋 API
 
-### `analyzePdfType(pdfPath, options)`
+### `analyzePdfType(pdfSource, options)`
 
 Analyzes PDF document type by sampling pages (very low RAM usage).
 
 **Parameters:**
-- `pdfPath` (string) - Path to PDF file
+- `pdfSource` (string | Buffer | Uint8Array) - Path to PDF file, Buffer, or Uint8Array
 - `options.samplePages` (number, optional) - Number of pages to sample (default: 5)
 
 **Returns:**
@@ -93,12 +103,12 @@ Promise<{
 }>
 ```
 
-### `extractPdfSmart(pdfPath, options)`
+### `extractPdfSmart(pdfSource, options)`
 
 Intelligent extraction that automatically selects the best method based on PDF type.
 
 **Parameters:**
-- `pdfPath` (string) - Path to PDF file
+- `pdfSource` (string | Buffer | Uint8Array) - Path to PDF file, Buffer, or Uint8Array
 - `options.onProgress` (function, optional) - Progress callback
 
 **Returns:**
@@ -113,12 +123,12 @@ Promise<{
 }>
 ```
 
-### `extractPdfData(pdfPath)`
+### `extractPdfData(pdfSource)`
 
 Basic extraction from PDF file.
 
 **Parameters:**
-- `pdfPath` (string) - Path to PDF file
+- `pdfSource` (string | Buffer | Uint8Array) - Path to PDF file, Buffer, or Uint8Array
 
 **Returns:**
 ```typescript
@@ -129,12 +139,12 @@ Promise<{
 }>
 ```
 
-### `extractPdfStats(pdfPath, options)`
+### `extractPdfStats(pdfSource, options)`
 
 Extraction with statistics and optional text extraction.
 
 **Parameters:**
-- `pdfPath` (string) - Path to PDF file
+- `pdfSource` (string | Buffer | Uint8Array) - Path to PDF file, Buffer, or Uint8Array
 - `options.extractText` (boolean, optional) - Extract text (default: true)
 - `options.onPageProcessed` (function, optional) - Page callback
 
