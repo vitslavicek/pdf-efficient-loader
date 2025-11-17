@@ -9,18 +9,18 @@ async function setupCanvasPolyfill() {
   if (canvasPolyfillSetup) return;
   
   try {
-    const { Canvas } = await import('canvas');
+    // Use @napi-rs/canvas for better performance and easier deployment
+    const { DOMMatrix } = await import('@napi-rs/canvas');
     
     // Polyfill global objects needed by pdfjs-dist
     if (typeof globalThis.DOMMatrix === 'undefined') {
-      const canvasModule = await import('canvas');
-      globalThis.DOMMatrix = canvasModule.DOMMatrix;
+      globalThis.DOMMatrix = DOMMatrix;
     }
     
     canvasPolyfillSetup = true;
   } catch (error) {
     console.warn('Canvas polyfill not available. Some PDF operations may fail in Node.js environment.');
-    console.warn('Install canvas with: npm install canvas');
+    console.warn('Install @napi-rs/canvas with: npm install @napi-rs/canvas');
   }
 }
 

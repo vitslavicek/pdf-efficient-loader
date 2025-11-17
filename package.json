@@ -34,7 +34,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "pdfjs-dist": "^5.4.394",
-    "canvas": "^2.11.2"
+    "@napi-rs/canvas": "^0.1.82",
+    "pdfjs-dist": "^5.4.394"
   }
 }

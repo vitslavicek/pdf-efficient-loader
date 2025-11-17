@@ -17,7 +17,7 @@ Memory-efficient Node.js library for extracting text, counting images and vector
 npm install pdf-efficient-loader
 ```
 
-**Note:** The library includes `canvas` as a dependency for Node.js compatibility. If you encounter installation issues with canvas (especially on AWS Lambda or Docker), see the [Canvas Installation Guide](https://github.com/Automattic/node-canvas#installation).
+**Note:** The library uses `@napi-rs/canvas` for Node.js compatibility. This provides better performance and easier deployment compared to node-canvas, with no system dependencies required.
 
 ## 🎯 Usage
 
