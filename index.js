@@ -35,7 +35,8 @@ function loadPdfData(source) {
   } else if (source instanceof Uint8Array) {
     return source;
   } else if (Buffer.isBuffer(source)) {
-    return new Uint8Array(source);
+    // Create a new Uint8Array from buffer data to avoid pdfjs-dist Buffer rejection
+    return new Uint8Array(source.buffer, source.byteOffset, source.byteLength);
   } else {
     throw new Error('Invalid source: must be a file path (string), Buffer, or Uint8Array');
   }
