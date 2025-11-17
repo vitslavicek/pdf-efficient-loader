@@ -23,8 +23,9 @@ npm install
 
 Automatically detects PDF type and uses the most efficient extraction method:
 
+**ES Modules (Node.js, modern bundlers):**
 ```javascript
-import { extractPdfSmart } from './index.js';
+import { extractPdfSmart } from 'pdf-efficient-loader';
 
 // From file path
 const result = await extractPdfSmart('./document.pdf', {
@@ -35,15 +36,6 @@ const result = await extractPdfSmart('./document.pdf', {
   }
 });
 
-// From buffer (e.g., uploaded file, HTTP response)
-import fs from 'fs';
-const buffer = fs.readFileSync('./document.pdf');
-const result = await extractPdfSmart(buffer, { onProgress: ... });
-
-// From Uint8Array
-const uint8Array = new Uint8Array(buffer);
-const result = await extractPdfSmart(uint8Array, { onProgress: ... });
-
 console.log('Type:', result.pdfType);        // 'scan', 'vector', or 'text'
 console.log('Text:', result.text);
 console.log('Images:', result.imageCount);
@@ -51,10 +43,32 @@ console.log('Vectors:', result.vectorCount);
 console.log('Pages:', result.pages);
 ```
 
+**CommonJS (TypeScript with commonjs, older Node.js):**
+```javascript
+const { extractPdfSmart } = require('pdf-efficient-loader');
+
+// Usage is the same
+const result = await extractPdfSmart('./document.pdf');
+```
+
+**Using with Buffer or Uint8Array:**
+```javascript
+import { extractPdfSmart } from 'pdf-efficient-loader';
+import fs from 'fs';
+
+// From buffer (e.g., uploaded file, HTTP response)
+const buffer = fs.readFileSync('./document.pdf');
+const result = await extractPdfSmart(buffer);
+
+// From Uint8Array
+const uint8Array = new Uint8Array(buffer);
+const result = await extractPdfSmart(uint8Array);
+```
+
 ### Analyze PDF type first
 
 ```javascript
-import { analyzePdfType } from './index.js';
+import { analyzePdfType } from 'pdf-efficient-loader';
 
 const analysis = await analyzePdfType('./document.pdf', { samplePages: 5 });
 
@@ -66,7 +80,7 @@ console.log('Stats:', analysis.stats);
 ### Basic extraction
 
 ```javascript
-import { extractPdfData } from './index.js';
+import { extractPdfData } from 'pdf-efficient-loader';
 
 const result = await extractPdfData('./document.pdf');
 
