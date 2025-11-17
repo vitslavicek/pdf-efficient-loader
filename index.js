@@ -32,11 +32,12 @@ async function setupCanvasPolyfill() {
 function loadPdfData(source) {
   if (typeof source === 'string') {
     return new Uint8Array(fs.readFileSync(source));
-  } else if (source instanceof Uint8Array) {
-    return source;
-  } else if (Buffer.isBuffer(source)) {
+  } else if (source instanceof Buffer) {
+    // Check Buffer first! Buffer is a subclass of Uint8Array in Node.js
     // Create a new Uint8Array from buffer data to avoid pdfjs-dist Buffer rejection
     return new Uint8Array(source.buffer, source.byteOffset, source.byteLength);
+  } else if (source instanceof Uint8Array) {
+    return source;
   } else {
     throw new Error('Invalid source: must be a file path (string), Buffer, or Uint8Array');
   }
