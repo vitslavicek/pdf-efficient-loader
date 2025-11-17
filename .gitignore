@@ -1,0 +1,8 @@
+node_modules/
+*.pdf
+.DS_Store
+*.log
+.env
+dist/
+build/
+tests/

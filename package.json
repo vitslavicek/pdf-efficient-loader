@@ -1,0 +1,30 @@
+{
+  "name": "pdf-efficient-loader",
+  "version": "1.0.0",
+  "description": "Ultra memory-efficient Node.js library for PDF analysis with intelligent document type detection (scan/vector/text). Extracts text, counts images and vectors with <100MB RAM usage even for large PDFs with hundreds of images.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node example.js"
+  },
+  "keywords": [
+    "pdf",
+    "pdf-parser",
+    "pdf-extractor",
+    "text-extraction",
+    "image-count",
+    "vector-detection",
+    "memory-efficient",
+    "low-memory",
+    "document-classification",
+    "scan-detection",
+    "ocr-routing",
+    "pdfjs",
+    "pdf-analysis"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "pdfjs-dist": "^5.4.394"
+  }
+}
