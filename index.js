@@ -540,26 +540,43 @@ export async function analyzePdfType(pdfSource, options = {}) {
  * 
  * @param {string|Buffer|Uint8Array} pdfSource - Path to PDF file, Buffer, or Uint8Array
  * @param {Object} options - Processing options
+ * @param {Object} options.analysis - Pre-computed analysis from analyzePdfType (optional, skips analysis step)
+ * @param {Function} options.onProgress - Progress callback
  * @returns {Promise<{text: string, imageCount: number, vectorCount: number, pages: number, pdfType: string}>}
  */
 export async function extractPdfSmart(pdfSource, options = {}) {
   // Setup canvas polyfill for Node.js
   await setupCanvasPolyfill();
   
-  const { onProgress = null } = options;
+  const { onProgress = null, analysis: precomputedAnalysis = null } = options;
   
-  // First analyze PDF type (fast, low RAM)
-  if (onProgress) onProgress({ stage: 'analyzing', progress: 0 });
+  let analysis;
   
-  const analysis = await analyzePdfType(pdfSource, { samplePages: 5 });
-  
-  if (onProgress) {
-    onProgress({ 
-      stage: 'analyzed', 
-      progress: 0.1,
-      pdfType: analysis.type,
-      confidence: analysis.confidence
-    });
+  // Use pre-computed analysis if provided, otherwise analyze now
+  if (precomputedAnalysis) {
+    analysis = precomputedAnalysis;
+    if (onProgress) {
+      onProgress({ 
+        stage: 'analyzed', 
+        progress: 0.1,
+        pdfType: analysis.type,
+        confidence: analysis.confidence
+      });
+    }
+  } else {
+    // First analyze PDF type (fast, low RAM)
+    if (onProgress) onProgress({ stage: 'analyzing', progress: 0 });
+    
+    analysis = await analyzePdfType(pdfSource, { samplePages: 5 });
+    
+    if (onProgress) {
+      onProgress({ 
+        stage: 'analyzed', 
+        progress: 0.1,
+        pdfType: analysis.type,
+        confidence: analysis.confidence
+      });
+    }
   }
   
   // FOR ALL types: use ultra-efficient method WITHOUT getOperatorList

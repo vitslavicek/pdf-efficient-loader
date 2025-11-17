@@ -45,6 +45,24 @@ console.log('Vectors:', result.vectorCount);
 console.log('Pages:', result.pages);
 ```
 
+**With pre-computed analysis (skip analysis step):**
+```javascript
+import { analyzePdfType, extractPdfSmart } from 'pdf-efficient-loader';
+
+// Step 1: Analyze PDF type first
+const analysis = await analyzePdfType('./document.pdf');
+
+// Step 2: Use analysis for extraction (saves time, no re-analysis)
+const result = await extractPdfSmart('./document.pdf', {
+  analysis: analysis  // Pass pre-computed analysis
+});
+
+// This is useful when you want to:
+// - Show analysis results to user before extraction
+// - Make decisions based on PDF type
+// - Process multiple PDFs with same analysis
+```
+
 **CommonJS (TypeScript with commonjs, older Node.js):**
 ```javascript
 const { extractPdfSmart } = require('pdf-efficient-loader');

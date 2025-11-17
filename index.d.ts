@@ -105,6 +105,7 @@ export interface AnalyzeOptions {
  */
 export interface SmartOptions {
   onProgress?: (info: ProgressInfo) => void;
+  analysis?: PdfTypeAnalysis;
 }
 
 /**
